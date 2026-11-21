@@ -1,0 +1,1636 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COVID-19 Data Analytics Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f3f6fc;
+            color: #1e293b;
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #101d35;
+            color: white;
+            padding: 28px 18px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            font-size: 21px;
+            font-weight: 800;
+            margin-bottom: 42px;
+            padding-left: 10px;
+        }
+
+        .logo span {
+            color: #60a5fa;
+        }
+
+        .menu-title {
+            color: #8493ad;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin: 25px 10px 12px;
+            letter-spacing: 1px;
+        }
+
+        .menu a {
+            display: block;
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 13px 14px;
+            border-radius: 8px;
+            margin-bottom: 7px;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #263c60;
+            color: white;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 35px;
+            width: calc(100% - 250px);
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+
+        .topbar h1 {
+            font-size: 25px;
+            font-weight: 800;
+        }
+
+        .topbar p {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .status {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 9px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .welcome {
+            background: linear-gradient(120deg, #1d4ed8, #2563eb, #3b82f6);
+            color: white;
+            padding: 32px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .welcome h2 {
+            font-size: 25px;
+            margin-bottom: 12px;
+        }
+
+        .welcome p {
+            font-size: 14px;
+            line-height: 1.7;
+            max-width: 650px;
+            color: #dbeafe;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 23px;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.04);
+            border: 1px solid #e8edf5;
+        }
+
+        .summary-card p {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 13px;
+        }
+
+        .summary-card h2 {
+            font-size: 27px;
+            color: #1e40af;
+            overflow-wrap: anywhere;
+        }
+
+        .summary-icon {
+            font-size: 23px;
+            margin-bottom: 15px;
+        }
+
+        .summary-note {
+            color: #64748b;
+            font-size: 11px;
+            margin-bottom: 35px;
+        }
+
+        .section {
+            margin-bottom: 35px;
+            scroll-margin-top: 20px;
+        }
+
+        .section-heading {
+            margin-bottom: 20px;
+        }
+
+        .section-heading h2 {
+            font-size: 20px;
+            margin-bottom: 7px;
+        }
+
+        .section-heading p {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            border: 1px solid #e8edf5;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.03);
+            min-width: 0;
+        }
+
+        .chart-card h3 {
+            font-size: 15px;
+            margin-bottom: 18px;
+        }
+
+        .chart-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 7px;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .insight-card {
+            background: white;
+            border: 1px solid #e8edf5;
+            border-radius: 12px;
+            padding: 22px;
+        }
+
+        .insight-card p {
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .insight-card h3 {
+            color: #1d4ed8;
+            font-size: 19px;
+            margin-bottom: 7px;
+        }
+
+        .insight-card span {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .search-card {
+            background: white;
+            border: 1px solid #e8edf5;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+        }
+
+        .search-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 17px;
+        }
+
+        input,
+        select {
+            padding: 13px 15px;
+            border: 1px solid #dbe3ef;
+            border-radius: 8px;
+            outline: none;
+            font-family: inherit;
+            font-size: 13px;
+            background: white;
+            color: #1e293b;
+            min-width: 0;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #2563eb;
+        }
+
+        .search-controls input {
+            flex: 1;
+        }
+
+        button {
+            padding: 13px 22px;
+            background: #2563eb;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .country-results {
+            display: none;
+            margin-top: 25px;
+        }
+
+        .country-results h3 {
+            margin-bottom: 16px;
+            font-size: 17px;
+        }
+
+        .country-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .country-stat {
+            padding: 17px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+        }
+
+        .country-stat p {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 9px;
+        }
+
+        .country-stat h4 {
+            font-size: 18px;
+            color: #1d4ed8;
+            overflow-wrap: anywhere;
+        }
+
+        .message {
+            margin-top: 13px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        /* COUNTRY COMPARISON */
+
+        .comparison-card {
+            background: white;
+            border: 1px solid #e8edf5;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .comparison-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 14px;
+            align-items: end;
+        }
+
+        .comparison-field label {
+            display: block;
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .comparison-field select {
+            width: 100%;
+        }
+
+        .comparison-results {
+            display: none;
+            margin-top: 28px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .comparison-country {
+            padding: 22px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .comparison-country h3 {
+            color: #1d4ed8;
+            font-size: 18px;
+            margin-bottom: 18px;
+        }
+
+        .comparison-stat {
+            margin-bottom: 16px;
+        }
+
+        .comparison-stat:last-child {
+            margin-bottom: 0;
+        }
+
+        .comparison-stat p {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .comparison-stat h4 {
+            font-size: 19px;
+            overflow-wrap: anywhere;
+        }
+
+        .comparison-chart-container {
+            position: relative;
+            height: 360px;
+            width: 100%;
+        }
+
+        .comparison-date {
+            color: #64748b;
+            font-size: 11px;
+            margin-top: 15px;
+        }
+
+        .trend-card {
+            background: white;
+            border: 1px solid #e8edf5;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .trend-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .trend-controls select {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .trend-chart-container {
+            position: relative;
+            width: 100%;
+            height: 390px;
+            margin-top: 20px;
+        }
+
+        #covidTrendChart {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .trend-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 22px;
+        }
+
+        .trend-info-card {
+            background: #f8fafc;
+            padding: 17px;
+            border-radius: 9px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .trend-info-card p {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .trend-info-card h3 {
+            color: #1d4ed8;
+            font-size: 18px;
+            overflow-wrap: anywhere;
+        }
+
+        footer {
+            padding: 25px 0;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        @media (max-width: 1000px) {
+            .sidebar {
+                width: 210px;
+            }
+
+            .main-content {
+                margin-left: 210px;
+                width: calc(100% - 210px);
+                padding: 25px;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .dashboard {
+                display: block;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .chart-grid,
+            .insights-grid,
+            .summary-grid,
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .country-stats-grid,
+            .trend-info {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .trend-controls,
+            .search-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .comparison-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .trend-controls select {
+                max-width: none;
+            }
+
+            .trend-chart-container {
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .country-stats-grid,
+            .trend-info {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            COVID<span>Analytics</span>
+        </div>
+
+        <div class="menu-title">Main Menu</div>
+
+        <nav class="menu">
+            <a href="#dashboard" class="active">Dashboard</a>
+            <a href="#insights">Data Insights</a>
+            <a href="#country-analysis">Country Analysis</a>
+            <a href="#comparison">Country Comparison</a>
+            <a href="#trends">Case Trends</a>
+            <a href="#death-analysis">Death Analysis</a>
+            <a href="#vaccination">Vaccination</a>
+        </nav>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <header class="topbar" id="dashboard">
+
+            <div>
+                <h1>COVID-19 Analytics Dashboard</h1>
+                <p>Historical COVID-19 data analysis and visualization</p>
+            </div>
+
+            <div class="status">
+                Dataset Loaded
+            </div>
+
+        </header>
+
+
+        <section class="welcome">
+
+            <h2>Welcome to COVID-19 Data Analysis</h2>
+
+            <p>
+                Explore historical COVID-19 data through interactive charts,
+                country-level statistics, case trends, death analysis and
+                vaccination insights. This dashboard helps understand
+                the global impact of the pandemic.
+            </p>
+
+        </section>
+
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+                <div class="summary-icon">🌍</div>
+                <p>Total Countries / Regions</p>
+                <h2>{{ summary.total_countries }}</h2>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-icon">🦠</div>
+                <p>Total Confirmed Cases*</p>
+                <h2>{{ summary.total_cases }}</h2>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-icon">⚕️</div>
+                <p>Total Deaths*</p>
+                <h2>{{ summary.total_deaths }}</h2>
+            </div>
+
+        </section>
+
+        <p class="summary-note">
+            *Country-level latest cumulative figures summed across the dataset;
+            these are not official global aggregate totals.
+        </p>
+
+
+        <!-- DATA INSIGHTS -->
+
+        <section class="section" id="insights">
+
+            <div class="section-heading">
+                <h2>Data Insights</h2>
+                <p>Important findings from the COVID-19 dataset</p>
+            </div>
+
+            <div class="insights-grid">
+
+                <div class="insight-card">
+                    <p>Highest Confirmed Cases</p>
+                    <h3 id="highest-cases-country">Loading...</h3>
+                    <span id="highest-cases-value">Please wait</span>
+                </div>
+
+                <div class="insight-card">
+                    <p>Highest Deaths</p>
+                    <h3 id="highest-deaths-country">Loading...</h3>
+                    <span id="highest-deaths-value">Please wait</span>
+                </div>
+
+                <div class="insight-card">
+                    <p>Highest Fully Vaccinated Count</p>
+                    <h3 id="highest-vaccination-country">Loading...</h3>
+                    <span id="highest-vaccination-value">Please wait</span>
+                </div>
+
+                <div class="insight-card">
+                    <p>Lowest Death Rate (Countries with 100K+ Cases)</p>
+                    <h3 id="lowest-death-country">Loading...</h3>
+                    <span id="lowest-death-value">Please wait</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- COUNTRY ANALYSIS -->
+
+        <section class="section" id="country-analysis">
+
+            <div class="section-heading">
+                <h2>Country Analysis</h2>
+                <p>Search for a country and view its COVID-19 statistics</p>
+            </div>
+
+            <div class="search-card">
+
+                <h3>Search Country</h3>
+
+                <div class="search-controls">
+
+                    <input
+                        type="text"
+                        id="country-search"
+                        list="country-list"
+                        placeholder="Enter country name, e.g. India"
+                    >
+
+                    <datalist id="country-list">
+                        {% for country in countries %}
+                        <option value="{{ country }}">
+                        {% endfor %}
+                    </datalist>
+
+                    <button type="button" onclick="searchCountry()">
+                        Search
+                    </button>
+
+                </div>
+
+                <p class="message" id="search-message"></p>
+
+                <div class="country-results" id="country-results">
+
+                    <h3 id="result-country-name">Country Details</h3>
+
+                    <div class="country-stats-grid">
+
+                        <div class="country-stat">
+                            <p>Total Cases</p>
+                            <h4 id="result-cases">-</h4>
+                        </div>
+
+                        <div class="country-stat">
+                            <p>Total Deaths</p>
+                            <h4 id="result-deaths">-</h4>
+                        </div>
+
+                        <div class="country-stat">
+                            <p>New Cases</p>
+                            <h4 id="result-new-cases">-</h4>
+                        </div>
+
+                        <div class="country-stat">
+                            <p>New Deaths</p>
+                            <h4 id="result-new-deaths">-</h4>
+                        </div>
+
+                        <div class="country-stat">
+                            <p>People Vaccinated</p>
+                            <h4 id="result-vaccinated">-</h4>
+                        </div>
+
+                        <div class="country-stat">
+                            <p>Fully Vaccinated</p>
+                            <h4 id="result-fully-vaccinated">-</h4>
+                        </div>
+
+                        <div class="country-stat">
+                            <p>Population</p>
+                            <h4 id="result-population">-</h4>
+                        </div>
+
+                        <div class="country-stat">
+                            <p>Cases Per Million</p>
+                            <h4 id="result-cases-million">-</h4>
+                        </div>
+
+                        <div class="country-stat">
+                            <p>Deaths Per Million</p>
+                            <h4 id="result-deaths-million">-</h4>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="chart-grid">
+
+                <div class="chart-card">
+                    <h3>Top 10 Countries by Confirmed Cases</h3>
+                    <img
+                        src="{{ url_for('static', filename='images/top_10_countries.png') }}"
+                        alt="Top countries by cases"
+                    >
+                </div>
+
+                <div class="chart-card">
+                    <h3>Top 10 Countries by Deaths</h3>
+                    <img
+                        src="{{ url_for('static', filename='images/top_10_deaths.png') }}"
+                        alt="Top countries by deaths"
+                    >
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- NEW COUNTRY COMPARISON -->
+
+        <section class="section" id="comparison">
+
+            <div class="section-heading">
+                <h2>Country Comparison</h2>
+                <p>Compare COVID-19 statistics between two countries.</p>
+            </div>
+
+            <div class="comparison-card">
+
+                <div class="comparison-controls">
+
+                    <div class="comparison-field">
+                        <label for="compare-country-1">First Country</label>
+
+                        <select id="compare-country-1">
+                            <option value="">Select first country</option>
+
+                            {% for country in countries %}
+                            <option value="{{ country }}"
+                                {% if country == "India" %}selected{% endif %}>
+                                {{ country }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="comparison-field">
+                        <label for="compare-country-2">Second Country</label>
+
+                        <select id="compare-country-2">
+                            <option value="">Select second country</option>
+
+                            {% for country in countries %}
+                            <option value="{{ country }}"
+                                {% if country == "United States" %}selected{% endif %}>
+                                {{ country }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="button" id="compare-btn">
+                        Compare Countries
+                    </button>
+
+                </div>
+
+                <p class="message" id="comparison-message">
+                    Select two countries and click Compare Countries.
+                </p>
+
+                <div class="comparison-results" id="comparison-results">
+
+                    <div class="comparison-grid">
+
+                        <div class="comparison-country">
+
+                            <h3 id="compare-name-1">Country 1</h3>
+
+                            <div class="comparison-stat">
+                                <p>Total Confirmed Cases</p>
+                                <h4 id="compare-cases-1">-</h4>
+                            </div>
+
+                            <div class="comparison-stat">
+                                <p>Total Deaths</p>
+                                <h4 id="compare-deaths-1">-</h4>
+                            </div>
+
+                            <div class="comparison-stat">
+                                <p>Fully Vaccinated</p>
+                                <h4 id="compare-vaccinated-1">-</h4>
+                            </div>
+
+                            <p class="comparison-date" id="compare-date-1"></p>
+
+                        </div>
+
+
+                        <div class="comparison-country">
+
+                            <h3 id="compare-name-2">Country 2</h3>
+
+                            <div class="comparison-stat">
+                                <p>Total Confirmed Cases</p>
+                                <h4 id="compare-cases-2">-</h4>
+                            </div>
+
+                            <div class="comparison-stat">
+                                <p>Total Deaths</p>
+                                <h4 id="compare-deaths-2">-</h4>
+                            </div>
+
+                            <div class="comparison-stat">
+                                <p>Fully Vaccinated</p>
+                                <h4 id="compare-vaccinated-2">-</h4>
+                            </div>
+
+                            <p class="comparison-date" id="compare-date-2"></p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="chart-card">
+
+                        <h3>Confirmed Cases and Deaths Comparison</h3>
+
+                        <div class="comparison-chart-container">
+                            <canvas id="countryComparisonChart"></canvas>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- INTERACTIVE CASE TRENDS -->
+
+        <section class="section" id="trends">
+
+            <div class="section-heading">
+                <h2>Interactive COVID-19 Trends</h2>
+                <p>Select a country to explore its historical COVID-19 cases and deaths.</p>
+            </div>
+
+            <div class="trend-card">
+
+                <div class="trend-controls">
+
+                    <select id="trend-country">
+                        <option value="">Select a country</option>
+
+                        {% for country in countries %}
+                        <option value="{{ country }}"
+                            {% if country == "India" %}selected{% endif %}>
+                            {{ country }}
+                        </option>
+                        {% endfor %}
+
+                    </select>
+
+                    <button type="button" id="load-trend-btn">
+                        View Trend
+                    </button>
+
+                </div>
+
+                <p class="message" id="trend-message">
+                    Select a country and click View Trend.
+                </p>
+
+                <div class="trend-chart-container">
+                    <canvas id="covidTrendChart"></canvas>
+                </div>
+
+                <div class="trend-info">
+
+                    <div class="trend-info-card">
+                        <p>Latest Total Cases</p>
+                        <h3 id="trend-total-cases">-</h3>
+                    </div>
+
+                    <div class="trend-info-card">
+                        <p>Latest Total Deaths</p>
+                        <h3 id="trend-total-deaths">-</h3>
+                    </div>
+
+                    <div class="trend-info-card">
+                        <p>Latest Data Date</p>
+                        <h3 id="trend-latest-date">-</h3>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="chart-grid" style="margin-top:22px;">
+
+                <div class="chart-card">
+                    <h3>Monthly COVID-19 Cases Trend</h3>
+                    <img
+                        src="{{ url_for('static', filename='images/monthly_cases_trend.png') }}"
+                        alt="Monthly COVID cases trend"
+                    >
+                </div>
+
+                <div class="chart-card">
+                    <h3>COVID-19 Death Rate by Country</h3>
+                    <img
+                        src="{{ url_for('static', filename='images/covid_death_rate.png') }}"
+                        alt="COVID death rate chart"
+                    >
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- DEATH ANALYSIS -->
+
+        <section class="section" id="death-analysis">
+
+            <div class="section-heading">
+                <h2>Death Analysis</h2>
+                <p>Explore the impact of COVID-19 deaths across countries</p>
+            </div>
+
+            <div class="chart-card">
+                <h3>COVID-19 Death Statistics</h3>
+
+                <img
+                    src="{{ url_for('static', filename='images/top_10_deaths.png') }}"
+                    alt="Top ten countries by deaths"
+                >
+            </div>
+
+        </section>
+
+
+        <!-- VACCINATION -->
+
+        <section class="section" id="vaccination">
+
+            <div class="section-heading">
+                <h2>Vaccination Analysis</h2>
+                <p>Explore COVID-19 vaccination coverage across countries</p>
+            </div>
+
+            <div class="chart-card">
+                <h3>Top 10 Countries by Vaccination Coverage</h3>
+
+                <img
+                    src="{{ url_for('static', filename='images/top_10_vaccination_coverage.png') }}"
+                    alt="Top vaccination countries"
+                >
+            </div>
+
+        </section>
+
+
+        <footer>
+            COVID-19 Data Analytics Project | Built using Python, Flask,
+            CSV, Matplotlib and Chart.js
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script>
+
+    // Format numbers
+    function formatNumber(value) {
+
+        if (value === null || value === undefined || value === "") {
+            return "Not Available";
+        }
+
+        return Number(value).toLocaleString("en-IN", {
+            maximumFractionDigits: 2
+        });
+    }
+
+
+    // Load data insights
+    async function loadDataInsights() {
+
+        try {
+
+            const response = await fetch("/api/insights");
+
+            if (!response.ok) {
+                throw new Error("Unable to load insights");
+            }
+
+            const data = await response.json();
+
+            if (data.highest_cases) {
+                document.getElementById("highest-cases-country").textContent =
+                    data.highest_cases.country;
+
+                document.getElementById("highest-cases-value").textContent =
+                    formatNumber(data.highest_cases.value) + " cases";
+            }
+
+            if (data.highest_deaths) {
+                document.getElementById("highest-deaths-country").textContent =
+                    data.highest_deaths.country;
+
+                document.getElementById("highest-deaths-value").textContent =
+                    formatNumber(data.highest_deaths.value) + " deaths";
+            }
+
+            if (data.highest_vaccination) {
+                document.getElementById("highest-vaccination-country").textContent =
+                    data.highest_vaccination.country;
+
+                document.getElementById("highest-vaccination-value").textContent =
+                    formatNumber(data.highest_vaccination.value) +
+                    " fully vaccinated";
+            }
+
+            if (data.lowest_death_rate) {
+                document.getElementById("lowest-death-country").textContent =
+                    data.lowest_death_rate.country;
+
+                document.getElementById("lowest-death-value").textContent =
+                    Number(data.lowest_death_rate.death_rate).toFixed(2) +
+                    "% death rate";
+            }
+
+        } catch (error) {
+            console.error("Insights error:", error);
+        }
+
+    }
+
+
+    // Search country
+    async function searchCountry() {
+
+        const country = document.getElementById("country-search").value.trim();
+
+        const message = document.getElementById("search-message");
+        const results = document.getElementById("country-results");
+
+        if (!country) {
+            message.textContent = "Please enter a country name.";
+            results.style.display = "none";
+            return;
+        }
+
+        message.textContent = "Loading country details...";
+        results.style.display = "none";
+
+        try {
+
+            const response = await fetch(
+                "/api/country/" + encodeURIComponent(country)
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Country not found");
+            }
+
+            document.getElementById("result-country-name").textContent =
+                data.country;
+
+            document.getElementById("result-cases").textContent =
+                formatNumber(data.cases);
+
+            document.getElementById("result-deaths").textContent =
+                formatNumber(data.deaths);
+
+            document.getElementById("result-new-cases").textContent =
+                formatNumber(data.new_cases);
+
+            document.getElementById("result-new-deaths").textContent =
+                formatNumber(data.new_deaths);
+
+            document.getElementById("result-vaccinated").textContent =
+                formatNumber(data.vaccinated);
+
+            document.getElementById("result-fully-vaccinated").textContent =
+                formatNumber(data.fully_vaccinated);
+
+            document.getElementById("result-population").textContent =
+                formatNumber(data.population);
+
+            document.getElementById("result-cases-million").textContent =
+                formatNumber(data.cases_per_million);
+
+            document.getElementById("result-deaths-million").textContent =
+                formatNumber(data.deaths_per_million);
+
+            results.style.display = "block";
+            message.textContent = "Country details loaded successfully.";
+
+        } catch (error) {
+
+            message.textContent = error.message;
+            console.error("Country search error:", error);
+
+        }
+
+    }
+
+
+    // COUNTRY COMPARISON
+
+    let comparisonChart = null;
+
+    async function compareCountries() {
+
+        const country1 = document.getElementById("compare-country-1").value;
+        const country2 = document.getElementById("compare-country-2").value;
+
+        const message = document.getElementById("comparison-message");
+        const results = document.getElementById("comparison-results");
+
+        if (!country1 || !country2) {
+            message.textContent = "Please select both countries.";
+            results.style.display = "none";
+            return;
+        }
+
+        if (country1 === country2) {
+            message.textContent = "Please select two different countries.";
+            results.style.display = "none";
+            return;
+        }
+
+        message.textContent = "Comparing country statistics...";
+        results.style.display = "none";
+
+        try {
+
+            const apiUrl =
+                "/api/compare?country1=" + encodeURIComponent(country1) +
+                "&country2=" + encodeURIComponent(country2);
+
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Unable to compare countries.");
+            }
+
+            const first = data.country1;
+            const second = data.country2;
+
+            // Display first country
+            document.getElementById("compare-name-1").textContent =
+                first.name;
+
+            document.getElementById("compare-cases-1").textContent =
+                formatNumber(first.total_cases);
+
+            document.getElementById("compare-deaths-1").textContent =
+                formatNumber(first.total_deaths);
+
+            document.getElementById("compare-vaccinated-1").textContent =
+                formatNumber(first.fully_vaccinated);
+
+            document.getElementById("compare-date-1").textContent =
+                "Latest data: " + first.date;
+
+
+            // Display second country
+            document.getElementById("compare-name-2").textContent =
+                second.name;
+
+            document.getElementById("compare-cases-2").textContent =
+                formatNumber(second.total_cases);
+
+            document.getElementById("compare-deaths-2").textContent =
+                formatNumber(second.total_deaths);
+
+            document.getElementById("compare-vaccinated-2").textContent =
+                formatNumber(second.fully_vaccinated);
+
+            document.getElementById("compare-date-2").textContent =
+                "Latest data: " + second.date;
+
+
+            // Prepare chart values
+            const caseValues = [
+                first.total_cases,
+                second.total_cases
+            ];
+
+            const deathValues = [
+                first.total_deaths,
+                second.total_deaths
+            ];
+
+            // Destroy old chart before creating a new one
+            if (comparisonChart) {
+                comparisonChart.destroy();
+                comparisonChart = null;
+            }
+
+            const context = document
+                .getElementById("countryComparisonChart")
+                .getContext("2d");
+
+            comparisonChart = new Chart(context, {
+
+                type: "bar",
+
+                data: {
+
+                    labels: [
+                        first.name,
+                        second.name
+                    ],
+
+                    datasets: [
+
+                        {
+                            label: "Confirmed Cases",
+                            data: caseValues,
+                            backgroundColor: "#2563eb",
+                            borderRadius: 6
+                        },
+
+                        {
+                            label: "Deaths",
+                            data: deathValues,
+                            backgroundColor: "#ef4444",
+                            borderRadius: 6
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    plugins: {
+                        legend: {
+                            position: "top"
+                        },
+
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ": " +
+                                        formatNumber(context.raw);
+                                }
+                            }
+                        }
+                    },
+
+                    scales: {
+
+                        x: {
+                            title: {
+                                display: true,
+                                text: "Countries"
+                            }
+                        },
+
+                        y: {
+                            beginAtZero: true,
+
+                            title: {
+                                display: true,
+                                text: "Number of People"
+                            },
+
+                            ticks: {
+                                callback: function(value) {
+                                    return Number(value).toLocaleString("en-IN");
+                                }
+                            }
+                        }
+
+                    }
+
+                }
+
+            });
+
+            results.style.display = "block";
+
+            message.textContent =
+                "Comparison loaded successfully.";
+
+        } catch (error) {
+
+            message.textContent = error.message;
+            console.error("Comparison error:", error);
+
+        }
+
+    }
+
+
+    // Store the trend chart
+    let covidChart = null;
+
+
+    // Load country historical trend
+    async function loadCountryTrend() {
+
+        const countrySelect = document.getElementById("trend-country");
+        const country = countrySelect.value;
+
+        const message = document.getElementById("trend-message");
+
+        if (!country) {
+            message.textContent = "Please select a country.";
+            return;
+        }
+
+        message.textContent = "Loading historical trend data...";
+
+        try {
+
+            const apiUrl =
+                "/api/country-trend/" + encodeURIComponent(country);
+
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Unable to load trend data.");
+            }
+
+            if (!data.records || data.records.length === 0) {
+                throw new Error("No historical records found.");
+            }
+
+            const records = data.records.filter(item => item.date);
+
+            if (records.length === 0) {
+                throw new Error("No valid date records found.");
+            }
+
+            const labels = records.map(item => item.date);
+            const cases = records.map(item => item.total_cases);
+            const deaths = records.map(item => item.total_deaths);
+
+            if (covidChart) {
+                covidChart.destroy();
+                covidChart = null;
+            }
+
+            const canvas = document.getElementById("covidTrendChart");
+            const context = canvas.getContext("2d");
+
+            covidChart = new Chart(context, {
+
+                type: "line",
+
+                data: {
+
+                    labels: labels,
+
+                    datasets: [
+
+                        {
+                            label: "Total Confirmed Cases",
+                            data: cases,
+                            borderColor: "#2563eb",
+                            backgroundColor: "rgba(37, 99, 235, 0.10)",
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            fill: true,
+                            tension: 0.25,
+                            spanGaps: true
+                        },
+
+                        {
+                            label: "Total Deaths",
+                            data: deaths,
+                            borderColor: "#ef4444",
+                            backgroundColor: "rgba(239, 68, 68, 0.08)",
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            fill: false,
+                            tension: 0.25,
+                            spanGaps: true
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    interaction: {
+                        mode: "index",
+                        intersect: false
+                    },
+
+                    plugins: {
+
+                        legend: {
+                            display: true,
+                            position: "top"
+                        },
+
+                        tooltip: {
+                            enabled: true
+                        }
+
+                    },
+
+                    scales: {
+
+                        x: {
+                            title: {
+                                display: true,
+                                text: "Date"
+                            },
+
+                            ticks: {
+                                maxTicksLimit: 10,
+                                maxRotation: 0
+                            }
+                        },
+
+                        y: {
+                            beginAtZero: true,
+
+                            title: {
+                                display: true,
+                                text: "Number of People"
+                            },
+
+                            ticks: {
+                                callback: function(value) {
+                                    return Number(value).toLocaleString("en-IN");
+                                }
+                            }
+                        }
+
+                    }
+
+                }
+
+            });
+
+
+            const latestCases = [...records].reverse().find(
+                item => item.total_cases !== null &&
+                        item.total_cases !== undefined
+            );
+
+            const latestDeaths = [...records].reverse().find(
+                item => item.total_deaths !== null &&
+                        item.total_deaths !== undefined
+            );
+
+            const latestDate = records[records.length - 1].date;
+
+            document.getElementById("trend-total-cases").textContent =
+                latestCases
+                    ? formatNumber(latestCases.total_cases)
+                    : "N/A";
+
+            document.getElementById("trend-total-deaths").textContent =
+                latestDeaths
+                    ? formatNumber(latestDeaths.total_deaths)
+                    : "N/A";
+
+            document.getElementById("trend-latest-date").textContent =
+                latestDate;
+
+            message.textContent =
+                "Historical trend loaded successfully for " + country + ".";
+
+        } catch (error) {
+
+            message.textContent = error.message;
+            console.error("Trend chart error:", error);
+
+        }
+
+    }
+
+
+    // Button events
+    document.getElementById("load-trend-btn").addEventListener(
+        "click",
+        loadCountryTrend
+    );
+
+    document.getElementById("compare-btn").addEventListener(
+        "click",
+        compareCountries
+    );
+
+
+    // Load dashboard information
+    window.addEventListener("load", function() {
+
+        loadDataInsights();
+
+        const countrySelect = document.getElementById("trend-country");
+
+        if (countrySelect && countrySelect.value) {
+            loadCountryTrend();
+        }
+
+        // Load the default India vs United States comparison
+        compareCountries();
+
+    });
+
+
+    // Sidebar active menu
+    const menuLinks = document.querySelectorAll(".menu a");
+
+    menuLinks.forEach(function(link) {
+
+        link.addEventListener("click", function() {
+
+            menuLinks.forEach(item => item.classList.remove("active"));
+
+            this.classList.add("active");
+
+        });
+
+    });
+
+</script>
+
+</body>
+</html>
